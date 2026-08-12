@@ -6,6 +6,6 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "Hello\n" << PRODUCTION_BUILD << "\n";
 
-	// hello
+	// hello there
 	return 0;
 }
