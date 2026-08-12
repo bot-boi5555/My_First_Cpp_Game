@@ -6,6 +6,7 @@ build/
 .idea/
 CMakeSettings.json
 Makefile
+/.vscode
 
 settings/
 saves/
