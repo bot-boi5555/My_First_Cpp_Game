@@ -7,10 +7,26 @@
 
 int main(int argc, char* argv[]) {
 
+	float num2 = 0;
+
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 450, "First window");
 
+	#pragma region imgui_setup
+
 	rlImGuiSetup(true); // setup rlimgui
+
+	ImGuiIO& io = ImGui::GetIO();
+
+
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 	// allow for keyboard control
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; 	// allow for gamepad (ps/xbox controller) control
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 		// allows for imgui windows to be docked on other imgui window
+	io.FontGlobalScale = 2.5; 								// increase the font size by a factor
+
+	#pragma endregion
+
+	
 
 	Color myColor = {.r = 255, .g = 0 , .b = 200, .a = 255};
 
@@ -20,8 +36,20 @@ int main(int argc, char* argv[]) {
 
 		ClearBackground(RAYWHITE);
 
-		rlImGuiBegin(); // run rlimgui
+		#pragma region imgui
 
+		rlImGuiBegin(); // run rlimgui
+		
+		// makes imgui bg see-through (without this, it will be gray)
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, {});
+		ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, {});
+
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()); // allows imGui windows to be docked on the main raylib window
+		
+		ImGui::PopStyleColor(2); // part of the see-through code
+
+
+		#pragma endregion
 
 		DrawText("Great, you drew on the screen with raylib", 180, 200, 20, myColor);
 
@@ -30,25 +58,222 @@ int main(int argc, char* argv[]) {
 		
 		DrawRectangle(10, 350, 100, 100, {35, 175, 255, 255});
 
-		ImGui::ShowDemoWindow();
 
-		/*
+		#pragma region imgui_windows
+
+		//ImGui::ShowDemoWindow();
+
+		
 		ImGui::Begin("Test"); 	// all beginnings
 
 		ImGui::Text("Hello");
-		ImGui::Button("Click Me");
+		if(ImGui::Button("Click Me")) { // Button returns a boolean
+			std::cout << "Pressed\n";
+		}
 
-		ImGui::End();			// must come to an end (Free yo memory)
+		ImGui::SameLine(); // puts widgets on the same line (canceled out by ImGui::NewLine();)
 
-		*/
+		if(ImGui::Button("New Button")) { // Button returns a boolean
+			std::cout << "Pressed2\n";
+		}
+
+		ImGui::End();			// must come to an end (Free your memory)
+
+		ImGui::Text("Hello"); // widgit outside a window will create a debug window
+		
+		ImGui::Begin("New Window");
+
+		ImGui::Text("Here is some text");
+		ImGui::Separator(); // adds a line below like <hr>
+		ImGui::NewLine();
+		
+		static float num = 0; // must be static to retain its value at the end of the loop (if outside loop, then static is not needed)
+
+		if (ImGui::SliderFloat("My slider", &num, -10, 10) ) {
+			std::cout << num << " \n";
+		}
+
+		if (ImGui::SliderFloat("My slider##2", &num2, -10, 10) ) { // ## 2 is ignored in the render but is kept in the id (making it unique)
+			std::cout << num2 << " \n";
+		}
+
+		ImGui::End();
+
+
+		// test different widgets:
+
+		static float slider = 0;
+		static bool checkbox[4] = {false};
+		static int radio1 = 0;
+		static int intInput = 0; 
+		static float dragF[3] = {0};
+		static float vSlider = 0;
+		static float angleSlider = 0;
+		static float colorEdit[3] = {0};
+		static float colorPicker[4] = {0};
+		static float progressSlider = 0;
+
+
+		ImGui::Begin("Test widgets");
+
+		ImGui::Text("Testing different kinds of widgets");
+
+		ImGui::Separator();
+
+		if (ImGui::Button("Click me")) {
+			std::cout << "Pressed\n";
+		}
+
+		ImGui::Separator();
+
+		ImGui::Text("Slider:");
+
+		if (ImGui::SliderFloat("slider", &slider, 0, 1)) {
+			std::cout << "slider: " << slider << "\n";
+		}
+		
+		ImGui::Separator();
+
+		ImGui::Text("Checkboxes:");
+
+		if (ImGui::Checkbox("checkbox1", checkbox)) {
+			std::cout << "Checkbox1: " << ((checkbox[0])? "Checked" : "Unchcked") << "\n ";
+		}
+
+		if (ImGui::Checkbox("checkbox2", checkbox + 1)) {
+			std::cout << "Checkbox2: " << ((checkbox[1])? "Checked" : "Unchcked") << "\n";
+		}
+
+		if (ImGui::Checkbox("checkbox3", checkbox + 2)) {
+			std::cout << "Checkbox3: " << ((checkbox[2])? "Checked" : "Unchcked") << "\n";
+		}
+
+		if (ImGui::Checkbox("checkbox4", checkbox + 3)) {
+			std::cout << "Checkbox4: " << ((checkbox[3])? "Checked" : "Unchcked") << "\n";
+		}
+
+
+		ImGui::Separator();
+
+		ImGui::Text("Radios:");
+
+		if (ImGui::RadioButton("optiont1", radio1 == 1)) {
+			
+			radio1 = 1;
+			std::cout << "radio: " << radio1 << "\n";
+		
+		}
+		if (ImGui::RadioButton("optiont2", radio1 == 2)) {
+			
+			radio1 = 2;
+			std::cout << "radio: " << radio1 << "\n";
+		
+		}
+		if (ImGui::RadioButton("optiont3", radio1 == 3)) {
+			
+			radio1 = 3;
+			std::cout << "radio: " << radio1 << "\n";
+		
+		}
+		if (ImGui::RadioButton("optiont4", radio1 == 4)) {
+			
+			radio1 = 4;
+			std::cout << "radio: " << radio1 << "\n";
+		
+		}
+
+		ImGui::Separator();
+
+		ImGui::Text("Input int:");
+
+		// step = amount to increase when pressing + or -
+		// step_fast = amount to increase when pressing ctrl/+ or ctrl/-
+		if (ImGui::InputInt("Int value ", &intInput)) { 
+
+			std:: cout << "int value: " << intInput << "\n";
+		}
+
+		ImGui::Separator();
+		
+		ImGui::DragFloat3("Drag Float", dragF);
+		
+		ImGui::Separator();
+		
+		// imVect2 is a 2d vector used for determining the size of a widget
+		ImGui::VSliderFloat("Vertical Slider", ImVec2(50, 200), &vSlider, 0, 1);
+
+		ImGui::Separator();
+		
+		ImGui::SliderAngle("Slider angle", &angleSlider);
+
+		// this should be done recursively
+		if (ImGui::TreeNodeEx("root", ImGuiTreeNodeFlags_DefaultOpen)) { // ImGuiTreeNodeFlags_DefaultOpen is available only on TreeNodeEx, not TreeNode
+
+			ImGui::Text("I am root");
+
+			if (ImGui::TreeNodeEx("left")) {
+				
+				ImGui::Text("Im in the left child");
+
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNodeEx("right")) {
+				
+				ImGui::Text("Im in the right child");
+
+				ImGui::TreePop();
+			}
+
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+
+		if (ImGui::CollapsingHeader("Header1")) { // like TreeNode but no need to use TreePop
+			ImGui::Text("Some Content");
+		}  
+
+		ImGui::Separator();
+
+		// for rgb
+		if (ImGui::ColorEdit3("Color edit", colorEdit)) {
+			
+			std::cout << colorEdit[0] << " " << colorEdit[1] << " " << colorEdit[2] << "\n";
+		}
+
+		ImGui::Separator();
+
+		// for rgba
+		ImGui::ColorPicker4("Color Picker", colorPicker);
+
+
+		ImGui::Separator();
+
+		ImGui::SliderFloat("Progress slider", &progressSlider, 0, 1);
+
+		ImGui::ProgressBar(progressSlider);
+
+
+		ImGui::End();
+
+		#pragma endregion
+
+
+		#pragma region imgui
 
 		rlImGuiEnd();
+		
+		#pragma endregion
 
 		EndDrawing();
 
 	}
 
+	#pragma region imgui
 	rlImGuiShutdown();
+	#pragma endregion
+
 
 	CloseWindow();
 
