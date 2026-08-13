@@ -18,10 +18,17 @@ else()
 
 endif()
 
-
+# Statically linking Raylib
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build Raylib as a static library" FORCE)
 
 
 project(myGame)
+
+# add libraries
+add_subdirectory(thirdParty/raylib-5.0)
+add_subdirectory(thirdParty/imgui-docking)
+add_subdirectory(thirdparty/rlImgui)
+
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -74,3 +81,8 @@ endif()
 
 # include header files in "include"
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/")
+
+
+# link libraries
+
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE raylib_static imgui rlimgui)
