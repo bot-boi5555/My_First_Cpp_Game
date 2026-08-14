@@ -5,6 +5,10 @@
 #include <imgui.h>
 #include <rlImGui.h>
 
+#include "imGuiThemes.h"
+
+
+
 int main(int argc, char* argv[]) {
 
 	float num2 = 0;
@@ -18,6 +22,11 @@ int main(int argc, char* argv[]) {
 
 	ImGuiIO& io = ImGui::GetIO();
 
+	#pragma region custom style 
+	
+	imGuitheme1();
+
+	#pragma endregion
 
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 	// allow for keyboard control
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; 	// allow for gamepad (ps/xbox controller) control
@@ -254,6 +263,35 @@ int main(int argc, char* argv[]) {
 
 		ImGui::ProgressBar(progressSlider);
 
+
+		ImGui::End();
+
+
+		ImGui::Begin("Udemy test");
+
+		ImGui::Text("Speed");
+		ImGui::SameLine();
+		ImGui::TextDisabled("(?)");
+		
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::BeginTooltip();
+			ImGui::Text("Controls how fast the player moves.");
+			ImGui::EndTooltip();
+		}
+
+
+		static char buffer[128] = "";
+ 
+		ImGuiInputTextFlags flags =
+			ImGuiInputTextFlags_CharsNoBlank |        // no spaces
+			ImGuiInputTextFlags_EnterReturnsTrue |    // return true on Enter
+			ImGuiInputTextFlags_AutoSelectAll;        // select all text when focused
+		
+		if (ImGui::InputText("Player Name", buffer, sizeof(buffer), flags))
+		{
+			std::cout << "Confirmed name: " << buffer << "\n";
+		}
 
 		ImGui::End();
 
