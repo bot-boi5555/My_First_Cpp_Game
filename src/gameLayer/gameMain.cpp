@@ -1,4 +1,5 @@
 #include "gameMain.h"
+#include "assetManager.h"
 
 #include <iostream>
 #include <fstream>
@@ -7,41 +8,38 @@
 #define DELTA_TIME_TOLERANCE 		1.f/5		// max posible delta time
 
 struct GameData {
-	float positionX = 100;
-	float positionY = 100;
+	
 } gameData;
 
+AssetManager assetManager;
 
 bool initGame() {
+
+	assetManager.loadAll();
+
 	return true;
 }
 
 
 bool updateGame() {
-
-	Color myColor = {.r = 255, .g = 0 , .b = 200, .a = 255};
 	
 	float deltaTime = GetFrameTime();			// in general, multiply movement related stuff with delta time
-	int speed = 200;
+
 
 	if (deltaTime > DELTA_TIME_TOLERANCE) {		// ensure that the jump between renders is not large
 		deltaTime = DELTA_TIME_TOLERANCE;
 	}
 
-	if (IsKeyDown(KEY_A)) {
-		gameData.positionX -= speed * deltaTime;
-	}
-	if (IsKeyDown(KEY_D)) {
-		gameData.positionX += speed * deltaTime;
-	}
-	if (IsKeyDown(KEY_S)) {
-		gameData.positionY += speed * deltaTime;
-	}
-	if (IsKeyDown(KEY_W)) {
-		gameData.positionY -= speed * deltaTime;
-	}
 
-	DrawRectangle(gameData.positionX, gameData.positionY, 50, 50, myColor);
+	
+	DrawTexturePro(
+		assetManager.dirt, 
+		{0, 0, (float) assetManager.dirt.width, (float) assetManager.dirt.height}, 	// {posX, posY, sizeX, sizeY} (what part of the texture to use from the original png)
+		{50, 50, 100, 100},																	// {posX, posY, sizeX, sizeY} (position and size of the texture to be drawn on the window)
+		{},
+		0,
+		WHITE
+	);
 
 	return true;
 }
