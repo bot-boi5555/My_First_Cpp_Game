@@ -1,12 +1,15 @@
 #include "gameMain.h"
 #include "assetManager.h"
 #include "gameMap.h"
+#include "helpers.h"
 
 #include <iostream>
 #include <fstream>
 #include <raylib.h>
+#include <cmath>
 
 #define DELTA_TIME_TOLERANCE 		1.f/5		// max posible delta time
+#define PIXELS_PER_BLOCK			32
 
 struct GameData {
 	GameMap map;
@@ -20,13 +23,82 @@ AssetManager assetManager;
 
 bool initGame() {
 
-	gameData.map.create(30, 20);
+	gameData.map.create(30, 30);
 
-	gameData.map.getBlockUnsafe(0, 0).type 	= Block::dirt;
-	gameData.map.getBlockUnsafe(1, 1).type 	= Block::dirt;
-	gameData.map.getBlockUnsafe(2, 2).type 	= Block::dirt;
-	gameData.map.getBlockUnsafe(3, 3).type 	= Block::dirt;
-	gameData.map.getBlockUnsafe(4, 4).type 	= Block::dirt;
+	
+	gameData.map.getBlockUnsafe(0, 0).type 	= Block::water;
+	gameData.map.getBlockUnsafe(1, 1).type 	= Block::grassBlock;
+	gameData.map.getBlockUnsafe(2, 2).type 	= Block::pearlStone;
+	gameData.map.getBlockUnsafe(3, 3).type 	= Block::uraniumBlock;
+	gameData.map.getBlockUnsafe(4, 4).type 	= Block::glassPane;
+	
+
+	/*
+	// flat world
+	for (int x = 0; x < gameData.map.width; ++x) {
+		for (int y = 0; y < gameData.map.height; ++y) {
+
+			if (y == 0) {
+				gameData.map.getBlockUnsafe(x, y).type = Block::grassBlock;
+			}
+			else {
+				gameData.map.getBlockUnsafe(x, y).type = Block::dirt;
+			}
+
+		}
+	}
+	*/
+
+	/*
+	// right triangle
+	for (int y = 0; y < gameData.map.height; ++y) {
+		for (int x = 0; x <= y; ++ x) {
+
+			if (y == x) {
+				gameData.map.getBlockUnsafe(x, y).type = Block::grassBlock;
+			}
+			else {
+				gameData.map.getBlockUnsafe(x, y).type = Block::dirt;
+			}
+
+
+		}
+	}
+	*/
+
+	/*
+	for (int y = 0; y < gameData.map.height; ++y) {
+		for (int x = 0; x < gameData.map.width; ++x) {
+
+			if (x % 4 == 0 && y %4 == 0) {
+				gameData.map.getBlockUnsafe(x, y).type = Block::blueRubyBlock;
+			}
+			else if (x % 4 == 0) {
+				gameData.map.getBlockUnsafe(x, y).type = Block::goldBlock;
+			}
+			else if (y % 4 == 0) {
+				gameData.map.getBlockUnsafe(x, y).type = Block::copperBlock;
+			}
+			
+		}
+	}
+	*/
+
+
+	/*
+	for (int y = 0; y < gameData.map.height; ++y) {
+		for (int x = 0; x < gameData.map.width; ++x) {
+
+			float sinFunc = (std::sin(x) + std::sin(2*x) + 1) / 6;
+
+			if (0.5 * gameData.map.height - gameData.map.height * 0.3 * sinFunc < y) {
+				gameData.map.getBlockUnsafe(x, y).type = Block::dirt;
+			}
+
+		}
+	}
+	*/
+	
 
 	gameData.camera.target 					= {0, 0};			// puts the map (0, 0) in the center of the screen
 	gameData.camera.zoom 					= 100;
@@ -85,16 +157,16 @@ bool updateGame() {
 
 			float size = 1;
 			float posX = x * size;
-			float posY = y * size;
+			float posY = y * size;						
 			
 
 			DrawTexturePro(
-				assetManager.dirt, 
-				{0, 0, (float) assetManager.dirt.width, (float) assetManager.dirt.height}, 	// {posX, posY, sizeX, sizeY} (what part of the texture to use from the original png)
-				{posX, posY, size, size},													// {posX, posY, sizeX, sizeY} (position and size of the texture to be drawn on the window)
-				{0, 0},																		// origin (top left corner)
-				0,																			// rotation in degrees
-				WHITE																		// tint
+				assetManager.textures, 
+				getTextureAtlas(block.type, 0, PIXELS_PER_BLOCK, PIXELS_PER_BLOCK), 	// {posX, posY, width, height} (what part of the texture to use from the original png)
+				{posX, posY, size, size},												// {posX, posY, width, height} (position and size of the texture to be drawn on the window)
+				{0, 0},																	// origin (top left corner)
+				0,																		// rotation in degrees
+				WHITE																	// tint
 			);
 
 
