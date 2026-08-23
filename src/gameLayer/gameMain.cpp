@@ -23,7 +23,7 @@ AssetManager assetManager;
 
 bool initGame() {
 
-	gameData.map.create(30, 30);
+	gameData.map.create(100, 100);
 
 	
 	gameData.map.getBlockUnsafe(0, 0).type 	= Block::water;
@@ -120,6 +120,8 @@ bool updateGame() {
 		deltaTime = DELTA_TIME_TOLERANCE;
 	}
 
+	static Block selectedBlock = {.type = Block::grassBlock};
+
 	gameData.camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f}; 
 
 
@@ -143,6 +145,81 @@ bool updateGame() {
 	#pragma endregion
 
 	BeginMode2D(gameData.camera);
+
+	Vector2 worldPos 	= GetScreenToWorld2D(GetMousePosition(), gameData.camera);
+	int blockX			= (int) floor(worldPos.x);
+	int blockY			= (int) floor(worldPos.y);
+
+
+
+	// delete block
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+		
+		auto block = gameData.map.getBlockSafe(blockX, blockY);
+
+		if (block) {
+			*block = {};
+		}
+		
+	}
+	// place block
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+		
+		auto block = gameData.map.getBlockSafe(blockX, blockY);
+
+		if (block) {
+			block->type = selectedBlock.type;
+		}
+
+	}
+
+	
+	// simple block selector
+	switch (GetKeyPressed()) {
+	
+		case KEY_ONE:
+			selectedBlock.type = Block::woodPlank;
+			break;
+		
+		case KEY_TWO:
+			selectedBlock.type = Block::woodLog;
+			break;
+		
+		case KEY_THREE:
+			selectedBlock.type = Block::glass;
+			break;
+		
+		case KEY_FOUR:
+			selectedBlock.type = Block::bricks;
+			break;
+		
+		case KEY_FIVE:
+			selectedBlock.type = Block::leaves;
+			break;
+		
+		case KEY_SIX:
+		selectedBlock.type = Block::water;
+		break;
+		
+		case KEY_SEVEN:
+			selectedBlock.type = Block::stone;
+			break;
+		
+		case KEY_EIGHT:
+			selectedBlock.type = Block::dirt;
+			break;
+		
+		case KEY_NINE:
+		selectedBlock.type = Block::grassBlock;
+		break;
+		
+		case KEY_ZERO:
+			selectedBlock.type = Block::door;
+			break;
+		
+		default:
+		break;
+	}
 
 
 	for (int y = 0; y < gameData.map.height; ++y) {
@@ -173,6 +250,15 @@ bool updateGame() {
 		}
 	
 	}
+
+	DrawTexturePro(
+		assetManager.frame,
+		{0, 0, (float) assetManager.frame.width, (float) assetManager.frame.height}, 
+		{(float) blockX, (float) blockY, 1, 1},
+		{},
+		0,
+		WHITE
+	);
 
 
 	EndMode2D();	
