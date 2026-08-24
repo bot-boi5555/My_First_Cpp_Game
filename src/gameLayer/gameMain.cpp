@@ -4,6 +4,7 @@
 #include "helpers.h"
 
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <raylib.h>
 #include <cmath>
@@ -23,7 +24,13 @@ AssetManager assetManager;
 
 bool initGame() {
 
-	gameData.map.create(100, 100);
+	gameData.map.create(700, 700);
+
+	for (int y = 0; y < gameData.map.height; ++y) {
+		for (int x = 0; x < gameData.map.width; ++x) {
+			gameData.map.getBlockUnsafe(x, y).type = Block::stone;
+		}
+	}
 
 	
 	gameData.map.getBlockUnsafe(0, 0).type 	= Block::water;
@@ -144,12 +151,10 @@ bool updateGame() {
 
 	#pragma endregion
 
-	BeginMode2D(gameData.camera);
 
 	Vector2 worldPos 	= GetScreenToWorld2D(GetMousePosition(), gameData.camera);
 	int blockX			= (int) floor(worldPos.x);
 	int blockY			= (int) floor(worldPos.y);
-
 
 
 	// delete block
@@ -221,10 +226,30 @@ bool updateGame() {
 		break;
 	}
 
+	BeginMode2D(gameData.camera);
 
-	for (int y = 0; y < gameData.map.height; ++y) {
+	// render only visible part of screen to improve performance
+
+	Vector2 topLeftView = GetScreenToWorld2D({0, 0}, gameData.camera);
+	Vector2 bottomRightView = GetScreenToWorld2D({(float) GetScreenWidth(), (float) GetScreenHeight()}, gameData.camera);
+
+		// padding to ensure the entire visable world is rendered
+	int startXView = (int) floorf(topLeftView.x - 1);
+	int endXView = (int) floorf(bottomRightView.x + 1);
+
+	int startYView = (int) floorf(topLeftView.y - 1);
+	int endYView = (int) floorf(bottomRightView.y + 1);
+
+	// ensure that the start and end values are between 0 and max width / height
+	startXView = std::clamp(startXView, 0, gameData.map.width - 1);
+	endXView = std::clamp(endXView, 0, gameData.map.width - 1);
+
+	startYView = std::clamp(startYView, 0, gameData.map.height - 1);
+	endYView = std::clamp(endYView, 0, gameData.map.height - 1);
+
+	for (int y = startYView; y < endYView; ++y) {
 		
-		for (int x = 0; x < gameData.map.width; ++x) {
+		for (int x = startXView; x < endXView; ++x) {
 
 			auto& block = gameData.map.getBlockUnsafe(x, y);
 
@@ -263,6 +288,7 @@ bool updateGame() {
 
 	EndMode2D();	
 	
+	DrawFPS(10, 10);
 
 	return true;
 }
