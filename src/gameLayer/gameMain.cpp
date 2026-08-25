@@ -2,15 +2,19 @@
 #include "assetManager.h"
 #include "gameMap.h"
 #include "helpers.h"
+#include "drawTree.h"
 
 #include <iostream>
 #include <algorithm>
 #include <fstream>
 #include <raylib.h>
+#include <raymath.h>
 #include <cmath>
+#include <cstdlib>
 
 #define DELTA_TIME_TOLERANCE 		1.f/5		// max posible delta time
 #define PIXELS_PER_BLOCK			32
+
 
 struct GameData {
 	GameMap map;
@@ -26,12 +30,13 @@ bool initGame() {
 
 	gameData.map.create(700, 700);
 
+	/*
 	for (int y = 0; y < gameData.map.height; ++y) {
 		for (int x = 0; x < gameData.map.width; ++x) {
 			gameData.map.getBlockUnsafe(x, y).type = Block::stone;
 		}
 	}
-
+	*/
 	
 	gameData.map.getBlockUnsafe(0, 0).type 	= Block::water;
 	gameData.map.getBlockUnsafe(1, 1).type 	= Block::grassBlock;
@@ -176,6 +181,8 @@ bool updateGame() {
 			block->type = selectedBlock.type;
 		}
 
+		//block->variant = std::rand() % BLOCK_VARIANTS_COUNT;
+
 	}
 
 	
@@ -226,6 +233,9 @@ bool updateGame() {
 		break;
 	}
 
+
+	#pragma region draw world
+
 	BeginMode2D(gameData.camera);
 
 	// render only visible part of screen to improve performance
@@ -240,7 +250,7 @@ bool updateGame() {
 	int startYView = (int) floorf(topLeftView.y - 1);
 	int endYView = (int) floorf(bottomRightView.y + 1);
 
-	// ensure that the start and end values are between 0 and max width / height
+		// ensure that the start and end values are between 0 and max width / height
 	startXView = std::clamp(startXView, 0, gameData.map.width - 1);
 	endXView = std::clamp(endXView, 0, gameData.map.width - 1);
 
@@ -261,16 +271,23 @@ bool updateGame() {
 			float posX = x * size;
 			float posY = y * size;						
 			
+			if (block.type == Block::woodLog) {
+				drawLog(gameData.map, assetManager, posX, posY, size);
+			}
+			else {
 
-			DrawTexturePro(
-				assetManager.textures, 
-				getTextureAtlas(block.type, 0, PIXELS_PER_BLOCK, PIXELS_PER_BLOCK), 	// {posX, posY, width, height} (what part of the texture to use from the original png)
-				{posX, posY, size, size},												// {posX, posY, width, height} (position and size of the texture to be drawn on the window)
-				{0, 0},																	// origin (top left corner)
-				0,																		// rotation in degrees
-				WHITE																	// tint
-			);
+				DrawTexturePro(
+					assetManager.textures, 
+					getTextureAtlas(block.type, block.variant, PIXELS_PER_BLOCK, PIXELS_PER_BLOCK), 	// {posX, posY, width, height} (what part of the texture to use from the original png)
+					{posX, posY, size, size},												// {posX, posY, width, height} (position and size of the texture to be drawn on the window)
+					{0, 0},																	// origin (top left corner)
+					0,																		// rotation in degrees
+					WHITE																	// tint
+				);
+			
+			}
 
+			
 
 		}
 	
@@ -287,6 +304,8 @@ bool updateGame() {
 
 
 	EndMode2D();	
+
+	#pragma endregion
 	
 	DrawFPS(10, 10);
 

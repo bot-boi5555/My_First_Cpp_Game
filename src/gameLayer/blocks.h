@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#define BLOCK_VARIANTS_COUNT		4
+
 struct Block {
 	
 	enum {
@@ -71,6 +73,7 @@ struct Block {
 	};
 	
 	std::uint16_t type = 0;
+	std::uint8_t variant = 0;
 };
 
 
