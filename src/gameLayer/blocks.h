@@ -63,12 +63,32 @@ struct Block {
 		boneBookShelf,
 		bonePlatform,
 		uraniumBlock,
-		stoneWall,
+		cobbleStone,
 		water,
-		glassPane,
 		pearlStone,
 
-
+		dirtWall, 
+		stoneWall, 
+		woodWall, 
+		sandStoneWall, 
+		brickWall, 
+		glassWall, 
+		copperBlockWall, 
+		silverBlockWall,
+		goldBlockWall, 
+		snowWall, 
+		sandWall, 
+		stoneBricksWall, 
+		rubyBlockWall, 
+		heroglyphWall, 
+		blueRubyWall, 
+		plankedWall, 
+		snowBrickWall, 
+		boneBrickWall,
+		uraniumBlockWall,
+		cobbleStoneWall,
+		pearlStoneWall,
+		
 		BLOCKS_COUNT
 	};
 	

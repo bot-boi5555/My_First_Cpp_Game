@@ -18,6 +18,7 @@
 
 struct GameData {
 	GameMap map;
+	GameMap wallMap;
 	Camera2D camera;
 
 } gameData;
@@ -29,6 +30,7 @@ AssetManager assetManager;
 bool initGame() {
 
 	gameData.map.create(700, 700);
+	gameData.wallMap.create(700, 700);
 
 	/*
 	for (int y = 0; y < gameData.map.height; ++y) {
@@ -42,7 +44,7 @@ bool initGame() {
 	gameData.map.getBlockUnsafe(1, 1).type 	= Block::grassBlock;
 	gameData.map.getBlockUnsafe(2, 2).type 	= Block::pearlStone;
 	gameData.map.getBlockUnsafe(3, 3).type 	= Block::uraniumBlock;
-	gameData.map.getBlockUnsafe(4, 4).type 	= Block::glassPane;
+	gameData.wallMap.getBlockUnsafe(4, 4).type 	= Block::uraniumBlockWall;
 	
 
 	/*
@@ -262,8 +264,9 @@ bool updateGame() {
 		for (int x = startXView; x < endXView; ++x) {
 
 			auto& block = gameData.map.getBlockUnsafe(x, y);
+			auto& wall = gameData.wallMap.getBlockUnsafe(x, y);
 
-			if (block.type == Block::air) {
+			if (block.type == Block::air && wall.type == Block::air) {
 				continue;
 			}
 
@@ -273,12 +276,28 @@ bool updateGame() {
 			
 			if (block.type == Block::woodLog) {
 				drawLog(gameData.map, assetManager, posX, posY, size);
+
+				continue;
 			}
-			else {
+
+			if (block.type != Block::air) {
 
 				DrawTexturePro(
 					assetManager.textures, 
 					getTextureAtlas(block.type, block.variant, PIXELS_PER_BLOCK, PIXELS_PER_BLOCK), 	// {posX, posY, width, height} (what part of the texture to use from the original png)
+					{posX, posY, size, size},												// {posX, posY, width, height} (position and size of the texture to be drawn on the window)
+					{0, 0},																	// origin (top left corner)
+					0,																		// rotation in degrees
+					WHITE																	// tint
+				);
+			
+			}
+
+			if (wall.type != Block::air) {
+
+				DrawTexturePro(
+					assetManager.textures, 
+					getTextureAtlas(wall.type, wall.variant, PIXELS_PER_BLOCK, PIXELS_PER_BLOCK), 	// {posX, posY, width, height} (what part of the texture to use from the original png)
 					{posX, posY, size, size},												// {posX, posY, width, height} (position and size of the texture to be drawn on the window)
 					{0, 0},																	// origin (top left corner)
 					0,																		// rotation in degrees
